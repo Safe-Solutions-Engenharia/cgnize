@@ -1,33 +1,29 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+[project]
+name = "cgnize"
+version = "0.1.0"
+authors = [
+  { name="Jonathan Motta", email="jonathan.motta@safesolutions.com.br" },
+]
+description = "A Python toolkit for parsing, reading, and organizing cgns data files into analysis-ready format."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "numba",
+    "h5py",
+]
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+[project.urls]
+"Homepage" = "https://github.com/Safe-Solutions-Engenharia/cgnize"
+"Bug Tracker" = "https://github.com/Safe-Solutions-Engenharia/cgnize/issues"

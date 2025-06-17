@@ -1,0 +1,8 @@
+# Include the readme
+include README.md
+
+# Include all files in the src directory
+graft src
+
+# Exclude compiled Python files globally
+global-exclude *.py[cod]
