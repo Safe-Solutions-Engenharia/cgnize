@@ -46,13 +46,8 @@ jobs:
           echo "version=${VERSION_FROM_TAG}" >> "$GITHUB_OUTPUT"
 
   build_wheels:
-    name: Construir pacotes em ${{ matrix.os }}
-    needs: get_version
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    name: Build pure Python wheel
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -62,17 +57,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Construir wheels com cibuildwheel
-        uses: pypa/cibuildwheel@v2.19.2
-        env:
-          CIBW_BUILD: cp311-*
-          CIBW_SKIP: "*-musllinux* pp* *_i686"
+      - name: Instalar build
+        run: python -m pip install --upgrade build
+
+      - name: Construir sdist e wheel
+        run: python -m build
 
       - name: Upload dos artefatos
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.os }}
-          path: ./wheelhouse
+          name: dist
+          path: dist
 
   pypi_publish:
     name: Publicar no PyPI
