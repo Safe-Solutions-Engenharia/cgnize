@@ -1,0 +1,120 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+a[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+b[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
+
+env:
+  PACKAGE_NAME: "cgnize"
+
+jobs:
+  get_version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.verify_versions.outputs.version }}
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Verificar se a tag e _version.py coincidem
+        id: verify_versions
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          VERSION_FROM_TAG="${TAG_NAME#v}"
+          
+          # Obtém a versão do arquivo src/_version.py
+          VERSION_FROM_FILE=$(python -c "from src._version import __version__; print(__version__)")
+
+          echo "Versão da Tag: ${VERSION_FROM_TAG}"
+          echo "Versão do Arquivo: ${VERSION_FROM_FILE}"
+
+          if [ "${VERSION_FROM_TAG}" != "${VERSION_FROM_FILE}" ]; then
+            echo "::error::Erro: A versão da tag Git ('${VERSION_FROM_TAG}') não é a mesma da versão em _version.py ('${VERSION_FROM_FILE}')!"
+            exit 1
+          fi
+
+          echo "As versões coincidem. Prosseguindo com a versão ${VERSION_FROM_TAG}"
+          echo "version=${VERSION_FROM_TAG}" >> "$GITHUB_OUTPUT"
+
+  build_wheels:
+    name: Construir pacotes em ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Construir wheels com cibuildwheel
+        uses: pypa/cibuildwheel@v2.19.2
+        env:
+          CIBW_BUILD: cp311-*
+          CIBW_SKIP: "*-musllinux* pp* *_i686"
+
+      - name: Upload dos artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: ./wheelhouse
+
+  pypi_publish:
+    name: Publicar no PyPI
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Baixar todos os artefatos
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+
+      - name: Publicar no PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  github_release:
+    name: Criar GitHub Release
+    needs: pypi_publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Baixar todos os pacotes
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+
+      - name: Criar GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          PACKAGE_NAME="cgnize"
+          gh release create "$TAG_NAME" dist/* \
+            --title "$PACKAGE_NAME $TAG_NAME" \
+            --generate-notes
