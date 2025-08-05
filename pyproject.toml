@@ -29,7 +29,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/Safe-Solutions-Engenharia/cgnize/issues"
 
 [tool.setuptools.dynamic]
-version = {attr = "src._version.__version__"}
+version = {attr = "_version.__version__"}
 
 [tool.setuptools]
 package-dir = {"" = "src"}
