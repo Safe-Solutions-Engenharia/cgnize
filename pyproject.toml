@@ -30,3 +30,6 @@ dependencies = [
 
 [tool.setuptools.dynamic]
 version = {attr = "src._version.__version__"}
+
+[tool.setuptools]
+package-dir = {"" = "src"}
