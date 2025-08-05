@@ -33,3 +33,4 @@ version = {attr = "src._version.__version__"}
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+packages = ["cgnize"]
