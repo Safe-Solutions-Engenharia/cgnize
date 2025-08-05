@@ -47,6 +47,7 @@ jobs:
 
   build_wheels:
     name: Construir pacotes em ${{ matrix.os }}
+    needs: get_version
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
