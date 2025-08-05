@@ -4,6 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cgnize"
+dynamic = ["version"]
 authors = [
   { name="Jonathan Motta", email="jonathan.motta@safesolutions.com.br" },
 ]
@@ -26,3 +27,6 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/Safe-Solutions-Engenharia/cgnize"
 "Bug Tracker" = "https://github.com/Safe-Solutions-Engenharia/cgnize/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "src._version.__version__"}

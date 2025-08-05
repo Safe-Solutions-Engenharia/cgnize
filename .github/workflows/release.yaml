@@ -93,7 +93,7 @@ jobs:
 
   github_release:
     name: Criar GitHub Release
-    needs: pypi_publish
+    needs: [get_version, pypi_publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -113,9 +113,8 @@ jobs:
       - name: Criar GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.get_version.outputs.version }}
         run: |
-          TAG_NAME="${{ github.ref_name }}"
-          PACKAGE_NAME="cgnize"
-          gh release create "$TAG_NAME" dist/* \
-            --title "$PACKAGE_NAME $TAG_NAME" \
+          gh release create "${{ github.ref_name }}" dist/* \
+            --title "${{ env.PACKAGE_NAME }} ${{ env.VERSION }}" \
             --generate-notes
