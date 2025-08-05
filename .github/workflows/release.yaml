@@ -47,6 +47,7 @@ jobs:
 
   build_wheels:
     name: Build pure Python wheel
+    needs: get_version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
