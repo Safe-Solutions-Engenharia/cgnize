@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from numba import njit
 import h5py
 
 
@@ -97,7 +96,6 @@ def extract_cgns_variable(h5py_file: h5py.File, variable_name: str) -> np.ndarra
         raise
 
 
-@njit
 def _transform_coordinates(grid_x: np.ndarray, grid_y: np.ndarray, 
                            grid_z: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
